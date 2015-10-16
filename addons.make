@@ -1,0 +1,3 @@
+ofxVectorMath
+ofxGui
+ofxOpenCv

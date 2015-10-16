@@ -1,0 +1,12 @@
+<Terrain_Scanner>
+	<Navigation>
+		<dx>-300</dx>
+		<dy>-1188</dy>
+	</Navigation>
+<Terrain_Scanner/>
+	<Grass_filter>
+		<enableFilter>0</enableFilter>
+		<maskFactor>0.612245</maskFactor>
+		<maskUsePow>1</maskUsePow>
+	</Grass_filter>
+</Terrain_Scanner>
