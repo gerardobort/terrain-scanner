@@ -13,3 +13,18 @@
 7. ```find ./negative -iname "*.png" > negatives.txt```
 8. escape spaces in .txt files ```:%s/ /\\ /g``` (from vim)
 10. https://github.com/wulfebw/mergevec (python solution)
+
+
+find ./positive -iname "*.png" > positives.txt
+find ./negative -iname "*.png" > negatives.txt
+rm -Rf samples samples.vec classifier
+mkdir classifier
+cd negative
+find . -iname "*.png" -exec ../conv.sh {} 50x50 \;
+cd positive
+find . -iname "*.png" -exec ../conv.sh {} 50x50 \;
+perl createsamples.pl positives.txt negatives.txt samples 1500  "/usr/local/Cellar/opencv/2.4.12/bin/opencv_createsamples -bgcolor 0 -bgthresh 0 -maxxangle 1.1 -maxyangle 1.1 maxzangle 0.5 -maxidev 40 -w 50 -h 50"
+# NEW CV XML versions
+/usr/local/Cellar/opencv/2.4.12/bin/opencv_traincascade -data classifier -vec samples.vec -bg negatives.txt -numStages 20 -minHitRate 0.999 -maxFalseAlarmRate 0.5 -numPos 1000  -numNeg 600 -w 50 -h 50 -mode ALL -precalcValBufSize 1024
+# OLD CV XML versions (OF)
+/usr/local/Cellar/opencv/2.4.12/bin/opencv_haartraining -data classifier -vec samples.vec -bg negatives.txt -nstages 20 -minhitrate 0.999 -maxfalsealarmrate 0.5 -npos 400 -nneg 300 -w 50 -h 50 -mode ALL

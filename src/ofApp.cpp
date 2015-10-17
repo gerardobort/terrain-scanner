@@ -21,7 +21,9 @@ void ofApp::setup(){
     shaderMain.end();
 
 
-    finder.setup("haar/haarcascade_frontalface_default.xml");
+    //finder.setup("haar/haarcascade_frontalface_default.xml");
+    //finder.setup("haar/sqcows/classifier/cascade.xml");
+    finder.setup("haar/haarcascade_upperbody.xml");
     
     dx = dy = 0;
 	setupGui();
