@@ -4,6 +4,7 @@
 #include "ofGLProgrammableRenderer.h"
 #include "ofxGui.h"
 #include "ofxCvHaarFinder.h"
+#include "ofxCv.h"
 
 #define M_PI 3.1415926535897932384626433832795
 #define USE_PROGRAMMABLE_GL
@@ -16,6 +17,7 @@ class ofApp : public ofBaseApp{
         void draw();
         void exit();
 		void mouseDragged(int x, int y, int button);
+        void mousePressed(int x, int y, int button);
         void keyPressed(int key);
 
         void drawCanvas();
@@ -41,5 +43,13 @@ class ofApp : public ofBaseApp{
         ofParameter<float>  maskFactor;
         ofParameter<int>    maskUsePow;
 
+	    ofParameterGroup	parametersContour;
+        ofParameter<float>  cannyThreshold;
+
         ofxCvHaarFinder     finder;
+
+
+        ofxCv::ContourFinder contourFinder;
+        ofxCv::TrackingColorMode trackingColorMode;
+        ofColor targetColor;
 };
