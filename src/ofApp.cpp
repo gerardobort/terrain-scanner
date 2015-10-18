@@ -60,6 +60,7 @@ void ofApp::update(){
         shaderMain.setUniform1f("u_maskFactor", maskFactor);
         shaderMain.setUniform1i("u_maskUsePow", maskUsePow);
         shaderMain.setUniform1i("u_enableFilter", enableFilter ? 1 : 0);
+        shaderMain.setUniform3f("u_terrainAvgColor", terrainAvgColor->r/255.0, terrainAvgColor->g/255.0, terrainAvgColor->b/255.0);
     shaderMain.end();
 
     for (int i= 0 ; i < INT_COW_CLASSIFIERS_AMOUNT; i++)
@@ -93,7 +94,8 @@ void ofApp::draw(){
     bufferCanvas.end();
     bufferCanvas.draw(dx, dy);
 
-    imageSource.draw(10, 10, imageSource.getWidth()/20.0, imageSource.getHeight()/20.0);
+    bufferCanvas.draw(10, 10, imageSource.getWidth()/15.0, imageSource.getHeight()/15.0);
+    //imageSource.draw(10, 10, imageSource.getWidth()/20.0, imageSource.getHeight()/20.0);
 
     gui.draw();
 
@@ -121,6 +123,9 @@ void ofApp::exit(){
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
+    ofLog(OF_LOG_NOTICE, "drag X:" + ofToString(x));
+    ofLog(OF_LOG_NOTICE, "drag Y:" + ofToString(y));
+    ofLog(OF_LOG_NOTICE, "drag button:" + ofToString(button));
 }
 
 
@@ -171,6 +176,7 @@ void ofApp::setupGui() {
 	parametersFilter.add(enableFilter.set("enableFilter", true));
 	parametersFilter.add(maskFactor.set("maskFactor", 1.0, 0, 30.0));
 	parametersFilter.add(maskUsePow.set("maskUsePow", 1, 1, 6));
+	parametersFilter.add(terrainAvgColor.set("terrainAvgColor", ofColor(200, 200, 200), ofColor(0, 0, 0), ofColor(255, 255, 255)));
     gui.add(parametersFilter);
 
     for (int i= 0 ; i < INT_COW_CLASSIFIERS_AMOUNT; i++)
@@ -180,10 +186,18 @@ void ofApp::setupGui() {
 	gui.minimizeAll();
 }
 
-void ofApp::mouseScrolled(double x, double y){
+void ofApp::mouseScrolled(int x, int y){
     ofLog(OF_LOG_NOTICE, "scroll X:" + ofToString(x));
     ofLog(OF_LOG_NOTICE, "scroll Y:" + ofToString(y));
 }
 
 void ofApp::mousePressed(int x, int y, int button) {
+    ofLog(OF_LOG_NOTICE, "press X:" + ofToString(x));
+    ofLog(OF_LOG_NOTICE, "press Y:" + ofToString(y));
+    ofLog(OF_LOG_NOTICE, "press button:" + ofToString(button));
+}
+
+void ofApp::mouseMoved(int x, int y){
+    for (int i= 0 ; i < INT_COW_CLASSIFIERS_AMOUNT; i++)
+        cowClassifiers[i]->mouseMoved(x -dx, y -dy);
 }

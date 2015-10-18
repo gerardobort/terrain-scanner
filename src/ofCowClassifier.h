@@ -16,9 +16,13 @@ class ofCowClassifier {
         void draw();
 		void mouseDragged(int x, int y, int button);
         void mousePressed(int x, int y, int button);
+        void mouseMoved(int x, int y);
         void keyPressed(int key);
         char *filterName;
         bool changed;
+
+        int collisionContourIndex;
+        ofTrueTypeFont font;
 
         ofImage imageSource;
 
@@ -36,6 +40,12 @@ class ofCowClassifier {
 	    void setMaxRadius(int& _value) { changed = true; }
         ofParameter<ofColor> targetColor;
 	    void setTargetColor(ofColor& _value) { changed = true; }
+        ofParameter<bool>   fillPolyline;
+	    void setFillPolyline(bool& _value) { changed = true; }
+        ofParameter<float>  balanceThreshold;
+	    void setBalanceThreshold(float& _value) { changed = true; }
+        ofParameter<float>  estimatedCowArea;
+	    void setEstimatedCowArea(float& _value) { changed = true; }
 
 
         ofxCv::ContourFinder contourFinder;

@@ -1,21 +1,25 @@
 <Terrain_Scanner>
 	<Navigation>
-		<dx>-287</dx>
-		<dy>-1188</dy>
+		<dx>-340</dx>
+		<dy>-1235</dy>
 	</Navigation>
 <Terrain_Scanner/>
 	<Grass_filter>
 		<enableFilter>0</enableFilter>
 		<maskFactor>0.612245</maskFactor>
 		<maskUsePow>1</maskUsePow>
+	<terrainAvgColor>200, 200, 200, 255</terrainAvgColor>
 	</Grass_filter>
 <CowClassifier_Shorthorn>
 		<Contour_Finder>
-			<cannyThreshold>35.9507</cannyThreshold>
+			<cannyThreshold>24.0025</cannyThreshold>
 		<enabled>1</enabled>
 			<minRadius>5</minRadius>
-			<maxRadius>22</maxRadius>
-			<targetColor>11, 15, 23, 255</targetColor>
+			<maxRadius>20</maxRadius>
+			<targetColor>35, 35, 36, 255</targetColor>
+		<fillPolyline>0</fillPolyline>
+		<balanceThreshold>6.26823</balanceThreshold>
+			<estimatedCowArea>260.824</estimatedCowArea>
 		</Contour_Finder>
 	</CowClassifier_Shorthorn>
 	<CowClassifier_Hereford>
@@ -25,6 +29,9 @@
 			<minRadius>5</minRadius>
 			<maxRadius>311</maxRadius>
 			<targetColor>43, 103, 49, 255</targetColor>
+		<fillPolyline>0</fillPolyline>
+		<balanceThreshold>6</balanceThreshold>
+			<estimatedCowArea>200</estimatedCowArea>
 		</Contour_Finder>
 	</CowClassifier_Hereford>
 	<CowClassifier_Aberdeen_Angus>
@@ -34,6 +41,9 @@
 			<minRadius>5</minRadius>
 			<maxRadius>30</maxRadius>
 			<targetColor>0, 255, 0, 255</targetColor>
+		<fillPolyline>0</fillPolyline>
+		<balanceThreshold>6</balanceThreshold>
+			<estimatedCowArea>200</estimatedCowArea>
 		</Contour_Finder>
 	</CowClassifier_Aberdeen_Angus>
 	<CowClassifier_Holando_Argentina>
@@ -43,6 +53,9 @@
 			<minRadius>5</minRadius>
 			<maxRadius>30</maxRadius>
 			<targetColor>0, 255, 0, 255</targetColor>
+		<fillPolyline>0</fillPolyline>
+		<balanceThreshold>6</balanceThreshold>
+			<estimatedCowArea>200</estimatedCowArea>
 		</Contour_Finder>
 	</CowClassifier_Holando_Argentina>
 	<CowClassifier_Zebu>
@@ -52,6 +65,9 @@
 			<minRadius>5</minRadius>
 			<maxRadius>30</maxRadius>
 			<targetColor>0, 255, 0, 255</targetColor>
+		<fillPolyline>0</fillPolyline>
+		<balanceThreshold>6</balanceThreshold>
+			<estimatedCowArea>200</estimatedCowArea>
 		</Contour_Finder>
 	</CowClassifier_Zebu>
 	<CowClassifier_Charolais>
@@ -61,6 +77,9 @@
 			<minRadius>5</minRadius>
 			<maxRadius>30</maxRadius>
 			<targetColor>0, 255, 0, 255</targetColor>
+		<fillPolyline>0</fillPolyline>
+		<balanceThreshold>6</balanceThreshold>
+			<estimatedCowArea>200</estimatedCowArea>
 		</Contour_Finder>
 	</CowClassifier_Charolais>
 </Terrain_Scanner>

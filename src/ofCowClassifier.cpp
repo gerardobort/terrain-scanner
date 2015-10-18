@@ -9,6 +9,7 @@ ofCowClassifier::ofCowClassifier(char *filterName, ofImage *imageSource)
     : filterName(filterName), imageSource(*imageSource) {
 
     changed = false;
+    font.loadFont("fonts/Vera.ttf", 8);
 
     setupGui();
 }
@@ -39,13 +40,19 @@ void ofCowClassifier::draw(){
 
     if (!enabled) return;
 
-    ofSetLineWidth(1);
-    ofFill();
+    ofSetLineWidth(2);
+    ofSetColor(255, 255, 255, 30);
     contourFinder.draw();
     
-    ofNoFill();
     int n = contourFinder.size();
     for(int i = 0; i < n; i++) {
+        // balance is useful for detecting when a shape has an "arm" sticking out
+        // if balance.length() is small, the shape is more symmetric: like I, O, X...
+        // if balance.length() is large, the shape is less symmetric: like L, P, F...
+        ofVec2f balance = toOf(contourFinder.getBalance(i));
+
+        if (balance.length() > balanceThreshold) continue;
+
         // smallest rectangle that fits the contour
         ofSetColor(cyanPrint);
         ofPolyline minAreRect = toOf(contourFinder.getMinAreaRect(i));
@@ -61,17 +68,66 @@ void ofCowClassifier::draw(){
         ofRotate(ellipse.angle);
         ofEllipse(0, 0, ellipseSize.x, ellipseSize.y);
         ofPopMatrix();
-        
-        // minimum area circle that encloses the contour
-        ofSetColor(cyanPrint);
-        float circleRadius;
-        ofVec2f circleCenter = toOf(contourFinder.getMinEnclosingCircle(i, circleRadius));
-        ofCircle(circleCenter, circleRadius);
-        
+
         // convex hull of the contour
         ofSetColor(yellowPrint);
         ofPolyline convexHull = toOf(contourFinder.getConvexHull(i));
+        if (fillPolyline) {
+            ofPushStyle();
+            ofFill();
+            ofSetColor(ofColor(200, 0, 0, 60));
+            ofBeginShape();
+            vector<ofPoint>& vertices = convexHull.getVertices();
+            for(int j = 0; j < vertices.size(); j++) {
+                ofVertex(vertices[j]);
+            }
+            ofEndShape();
+            ofNoFill();
+            ofPopStyle();
+        }
         convexHull.draw();
+        
+        // minimum area circle that encloses the contour
+        if (i == collisionContourIndex) {
+            ofPushStyle();
+            ofSetColor(255);
+            ofSetColor(cyanPrint);
+            float circleRadius;
+            ofVec2f circleCenter = toOf(contourFinder.getMinEnclosingCircle(i, circleRadius));
+
+            // you can also get the area and perimeter using ofPolyline:
+            // ofPolyline::getArea() and ofPolyline::getPerimeter()
+            double area = contourFinder.getContourArea(i);
+            double length = contourFinder.getArcLength(i);      
+
+            /*
+            ofFill();
+            ofSetColor(ofColor(200, 0, 0, 120));
+            ofCircle(circleCenter, circleRadius);
+            ofNoFill();
+            */
+            ofFill();
+            ofSetColor(ofColor(0, 255, 0, 100));
+            ofBeginShape();
+            vector<ofPoint>& vertices = convexHull.getVertices();
+            for(int j = 0; j < vertices.size(); j++) {
+                ofVertex(vertices[j]);
+            }
+            ofEndShape();
+            ofNoFill();
+
+            ofPopStyle();
+
+            ofSetColor(0, 255, 0, 255);
+            font.drawString(
+                "from: " + ofToString(filterName)
+                + "\narea: " + ofToString(area)
+                + "\nlength: " + ofToString(length)
+                + "\nbalance: " + ofToString(balance.length())
+                + "\ncows: " + ofToString(ceil(area/estimatedCowArea)),  // cow estimated area
+                circleCenter.x + circleRadius + 10, circleCenter.y
+            );
+        }
         
         // defects of the convex hull
         vector<cv::Vec4i> defects = contourFinder.getConvexityDefects(i);
@@ -90,15 +146,6 @@ void ofCowClassifier::draw(){
         ofSetColor(yellowPrint);
         ofCircle(center, 1);
         
-        // you can also get the area and perimeter using ofPolyline:
-        // ofPolyline::getArea() and ofPolyline::getPerimeter()
-        double area = contourFinder.getContourArea(i);
-        double length = contourFinder.getArcLength(i);      
-        
-        // balance is useful for detecting when a shape has an "arm" sticking out
-        // if balance.length() is small, the shape is more symmetric: like I, O, X...
-        // if balance.length() is large, the shape is less symmetric: like L, P, F...
-        ofVec2f balance = toOf(contourFinder.getBalance(i));
         ofPushMatrix();
         ofTranslate(centroid.x, centroid.y);
         ofScale(5, 5);
@@ -107,21 +154,6 @@ void ofCowClassifier::draw(){
     }
 
     ofSetColor(255);
-    drawHighlightString(ofToString((int) ofGetFrameRate()) + " fps", 10, 10);
-    drawHighlightString(ofToString((int) cannyThreshold) + " threshold", 10, 30);
-    drawHighlightString(trackingColorMode == TRACK_COLOR_RGB ? "RGB tracking" : "hue tracking", 10, 50);
-
-
-    /* color picked
-    ofPushMatrix();
-    ofTranslate(10, 120);
-    ofFill();
-    ofSetColor(0);
-    ofRect(-3, -3, 32+6, 32+6);
-    ofSetColor(targetColor);
-    ofRect(0, 0, 32, 32);
-    ofPopMatrix();
-    */
 }
 
 //--------------------------------------------------------------
@@ -133,6 +165,20 @@ void ofCowClassifier::mouseDragged(int x, int y, int button){
 void ofCowClassifier::mousePressed(int x, int y, int button) {
     targetColor = imageSource.getPixelsRef().getColor(x, y);
     contourFinder.setTargetColor(targetColor, trackingColorMode);
+}
+
+//--------------------------------------------------------------
+void ofCowClassifier::mouseMoved(int x, int y){
+    int n = contourFinder.size();
+    for(int i = 0; i < n; i++) {
+        float circleRadius;
+        ofVec2f circleCenter = toOf(contourFinder.getMinEnclosingCircle(i, circleRadius));
+        if (circleCenter.distance(ofVec2f(x, y)) < circleRadius) {
+            collisionContourIndex = i;
+            ofLog(OF_LOG_NOTICE, "COLLISION! " + ofToString(i));
+            changed = true;
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -161,7 +207,10 @@ void ofCowClassifier::setupGui() {
 	parametersContour.add(cannyThreshold.set("cannyThreshold", 200, 0, 255));
 	parametersContour.add(minRadius.set("minRadius", 5, 5, 300));
 	parametersContour.add(maxRadius.set("maxRadius", 30, 5, 300));
+	parametersContour.add(fillPolyline.set("fillPolyline", false));
 	parametersContour.add(targetColor.set("targetColor", ofColor(0, 100, 0), ofColor(0, 0, 0), ofColor(255, 255, 255)));
+	parametersContour.add(balanceThreshold.set("balanceThreshold", 6, 0, 50));
+	parametersContour.add(estimatedCowArea.set("estimatedCowArea", 200, 1, 400));
 
 	enabled.addListener(this, &ofCowClassifier::setEnabled);
 	cannyThreshold.addListener(this, &ofCowClassifier::setCannyThreshold);

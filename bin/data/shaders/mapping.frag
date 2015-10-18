@@ -14,6 +14,7 @@ vec3 hsv2rgb(vec3 c);
 uniform float u_maskFactor;
 uniform int u_maskUsePow; // 8.0
 uniform int u_enableFilter;
+uniform vec3 u_terrainAvgColor;
 vec3 getMask();
  
 void main()
@@ -38,7 +39,7 @@ vec3 getMask() // returns color: whites are objects, blacks are background
 {
     vec4 imageColor = texture(u_sampler2d, v_texCoord0);
     vec3 imageHSVColor = rgb2hsv(imageColor.rgb);
-    vec3 pastureHSVColor = rgb2hsv(vec3(0, 1.0, 0));
+    vec3 pastureHSVColor = rgb2hsv(u_terrainAvgColor);
     vec3 diffHSVColor = vec3(
         abs(imageHSVColor.x - pastureHSVColor.x),
         abs(imageHSVColor.y - pastureHSVColor.y),

@@ -19,10 +19,11 @@ class ofApp : public ofBaseApp{
         void exit();
 		void mouseDragged(int x, int y, int button);
         void mousePressed(int x, int y, int button);
+        void mouseMoved(int x, int y);
         void keyPressed(int key);
 
         void drawCanvas();
-        void mouseScrolled(double x, double y);
+        void mouseScrolled(int x, int y);
 
         stringstream streamReport;
 
@@ -43,6 +44,7 @@ class ofApp : public ofBaseApp{
         ofParameter<bool>   enableFilter;
         ofParameter<float>  maskFactor;
         ofParameter<int>    maskUsePow;
+        ofParameter<ofColor> terrainAvgColor;
 
         ofxCvHaarFinder     finder;
 
