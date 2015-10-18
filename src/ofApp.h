@@ -4,10 +4,11 @@
 #include "ofGLProgrammableRenderer.h"
 #include "ofxGui.h"
 #include "ofxCvHaarFinder.h"
-#include "ofxCv.h"
+#include "ofCowClassifier.h"
 
 #define M_PI 3.1415926535897932384626433832795
 #define USE_PROGRAMMABLE_GL
+#define INT_COW_CLASSIFIERS_AMOUNT 6
 
 class ofApp : public ofBaseApp{
 
@@ -43,13 +44,7 @@ class ofApp : public ofBaseApp{
         ofParameter<float>  maskFactor;
         ofParameter<int>    maskUsePow;
 
-	    ofParameterGroup	parametersContour;
-        ofParameter<float>  cannyThreshold;
-
         ofxCvHaarFinder     finder;
 
-
-        ofxCv::ContourFinder contourFinder;
-        ofxCv::TrackingColorMode trackingColorMode;
-        ofColor targetColor;
+        ofCowClassifier     *cowClassifiers[INT_COW_CLASSIFIERS_AMOUNT];
 };

@@ -1,6 +1,6 @@
 <Terrain_Scanner>
 	<Navigation>
-		<dx>-300</dx>
+		<dx>-287</dx>
 		<dy>-1188</dy>
 	</Navigation>
 <Terrain_Scanner/>
@@ -9,4 +9,58 @@
 		<maskFactor>0.612245</maskFactor>
 		<maskUsePow>1</maskUsePow>
 	</Grass_filter>
+<CowClassifier_Shorthorn>
+		<Contour_Finder>
+			<cannyThreshold>35.9507</cannyThreshold>
+		<enabled>1</enabled>
+			<minRadius>5</minRadius>
+			<maxRadius>22</maxRadius>
+			<targetColor>11, 15, 23, 255</targetColor>
+		</Contour_Finder>
+	</CowClassifier_Shorthorn>
+	<CowClassifier_Hereford>
+		<Contour_Finder>
+			<cannyThreshold>111.622</cannyThreshold>
+		<enabled>0</enabled>
+			<minRadius>5</minRadius>
+			<maxRadius>311</maxRadius>
+			<targetColor>43, 103, 49, 255</targetColor>
+		</Contour_Finder>
+	</CowClassifier_Hereford>
+	<CowClassifier_Aberdeen_Angus>
+		<Contour_Finder>
+			<cannyThreshold>200</cannyThreshold>
+		<enabled>0</enabled>
+			<minRadius>5</minRadius>
+			<maxRadius>30</maxRadius>
+			<targetColor>0, 255, 0, 255</targetColor>
+		</Contour_Finder>
+	</CowClassifier_Aberdeen_Angus>
+	<CowClassifier_Holando_Argentina>
+		<Contour_Finder>
+			<cannyThreshold>200</cannyThreshold>
+		<enabled>0</enabled>
+			<minRadius>5</minRadius>
+			<maxRadius>30</maxRadius>
+			<targetColor>0, 255, 0, 255</targetColor>
+		</Contour_Finder>
+	</CowClassifier_Holando_Argentina>
+	<CowClassifier_Zebu>
+		<Contour_Finder>
+			<cannyThreshold>200</cannyThreshold>
+		<enabled>0</enabled>
+			<minRadius>5</minRadius>
+			<maxRadius>30</maxRadius>
+			<targetColor>0, 255, 0, 255</targetColor>
+		</Contour_Finder>
+	</CowClassifier_Zebu>
+	<CowClassifier_Charolais>
+		<Contour_Finder>
+			<cannyThreshold>200</cannyThreshold>
+		<enabled>0</enabled>
+			<minRadius>5</minRadius>
+			<maxRadius>30</maxRadius>
+			<targetColor>0, 255, 0, 255</targetColor>
+		</Contour_Finder>
+	</CowClassifier_Charolais>
 </Terrain_Scanner>
