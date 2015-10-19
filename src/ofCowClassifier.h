@@ -25,6 +25,7 @@ class ofCowClassifier {
         ofTrueTypeFont font;
 
         ofImage imageSource;
+        ofFbo bufferOutput;
 
         // GUI
         void				setupGui();

@@ -10,6 +10,7 @@ ofCowClassifier::ofCowClassifier(char *filterName, ofImage *imageSource)
 
     changed = false;
     font.loadFont("fonts/Vera.ttf", 8);
+    bufferOutput.allocate((*imageSource).getWidth(), (*imageSource).getHeight(), GL_RGBA);
 
     setupGui();
 }
@@ -23,7 +24,7 @@ void ofCowClassifier::update(){
 
     if (!enabled) return;
     if (!changed) return;
-    changed = false;
+    ofLog(OF_LOG_NOTICE, "**** UPDATE!");
 
     contourFinder.setMinAreaRadius(minRadius);
     contourFinder.setMaxAreaRadius(maxRadius);
@@ -40,120 +41,129 @@ void ofCowClassifier::draw(){
 
     if (!enabled) return;
 
-    ofSetLineWidth(2);
-    ofSetColor(255, 255, 255, 30);
-    contourFinder.draw();
-    
-    int n = contourFinder.size();
-    for(int i = 0; i < n; i++) {
-        // balance is useful for detecting when a shape has an "arm" sticking out
-        // if balance.length() is small, the shape is more symmetric: like I, O, X...
-        // if balance.length() is large, the shape is less symmetric: like L, P, F...
-        ofVec2f balance = toOf(contourFinder.getBalance(i));
-
-        if (balance.length() > balanceThreshold) continue;
-
-        // smallest rectangle that fits the contour
-        ofSetColor(cyanPrint);
-        ofPolyline minAreRect = toOf(contourFinder.getMinAreaRect(i));
-        minAreRect.draw();
+    if (changed) {
+    ofLog(OF_LOG_NOTICE, "**** CHANGED!");
+    bufferOutput.begin();
+        ofClear(0);
+        ofSetLineWidth(2);
+        ofSetColor(255, 255, 255, 30);
+        contourFinder.draw();
         
-        // ellipse that best fits the contour
-        ofSetColor(magentaPrint);
-        cv::RotatedRect ellipse = contourFinder.getFitEllipse(i);
-        ofPushMatrix();
-        ofVec2f ellipseCenter = toOf(ellipse.center);
-        ofVec2f ellipseSize = toOf(ellipse.size);
-        ofTranslate(ellipseCenter.x, ellipseCenter.y);
-        ofRotate(ellipse.angle);
-        ofEllipse(0, 0, ellipseSize.x, ellipseSize.y);
-        ofPopMatrix();
+        int n = contourFinder.size();
+        for(int i = 0; i < n; i++) {
+            // balance is useful for detecting when a shape has an "arm" sticking out
+            // if balance.length() is small, the shape is more symmetric: like I, O, X...
+            // if balance.length() is large, the shape is less symmetric: like L, P, F...
+            ofVec2f balance = toOf(contourFinder.getBalance(i));
 
-        // convex hull of the contour
-        ofSetColor(yellowPrint);
-        ofPolyline convexHull = toOf(contourFinder.getConvexHull(i));
-        if (fillPolyline) {
-            ofPushStyle();
-            ofFill();
-            ofSetColor(ofColor(200, 0, 0, 60));
-            ofBeginShape();
-            vector<ofPoint>& vertices = convexHull.getVertices();
-            for(int j = 0; j < vertices.size(); j++) {
-                ofVertex(vertices[j]);
-            }
-            ofEndShape();
-            ofNoFill();
-            ofPopStyle();
-        }
-        convexHull.draw();
-        
-        // minimum area circle that encloses the contour
-        if (i == collisionContourIndex) {
-            ofPushStyle();
-            ofSetColor(255);
+            if (balance.length() > balanceThreshold) continue;
+
+            // smallest rectangle that fits the contour
             ofSetColor(cyanPrint);
-            float circleRadius;
-            ofVec2f circleCenter = toOf(contourFinder.getMinEnclosingCircle(i, circleRadius));
+            ofPolyline minAreRect = toOf(contourFinder.getMinAreaRect(i));
+            minAreRect.draw();
+            
+            // ellipse that best fits the contour
+            ofSetColor(magentaPrint);
+            cv::RotatedRect ellipse = contourFinder.getFitEllipse(i);
+            ofPushMatrix();
+            ofVec2f ellipseCenter = toOf(ellipse.center);
+            ofVec2f ellipseSize = toOf(ellipse.size);
+            ofTranslate(ellipseCenter.x, ellipseCenter.y);
+            ofRotate(ellipse.angle);
+            ofEllipse(0, 0, ellipseSize.x, ellipseSize.y);
+            ofPopMatrix();
 
-            // you can also get the area and perimeter using ofPolyline:
-            // ofPolyline::getArea() and ofPolyline::getPerimeter()
-            double area = contourFinder.getContourArea(i);
-            double length = contourFinder.getArcLength(i);      
-
-            /*
-            ofFill();
-            ofSetColor(ofColor(200, 0, 0, 120));
-            ofCircle(circleCenter, circleRadius);
-            ofNoFill();
-            */
-            ofFill();
-            ofSetColor(ofColor(0, 255, 0, 100));
-            ofBeginShape();
-            vector<ofPoint>& vertices = convexHull.getVertices();
-            for(int j = 0; j < vertices.size(); j++) {
-                ofVertex(vertices[j]);
+            // convex hull of the contour
+            ofSetColor(yellowPrint);
+            ofPolyline convexHull = toOf(contourFinder.getConvexHull(i));
+            if (fillPolyline) {
+                ofPushStyle();
+                ofFill();
+                ofSetColor(ofColor(200, 0, 0, 60));
+                ofBeginShape();
+                vector<ofPoint>& vertices = convexHull.getVertices();
+                for(int j = 0; j < vertices.size(); j++) {
+                    ofVertex(vertices[j]);
+                }
+                ofEndShape();
+                ofNoFill();
+                ofPopStyle();
             }
-            ofEndShape();
-            ofNoFill();
+            convexHull.draw();
+            
+            // minimum area circle that encloses the contour
+            if (i == collisionContourIndex) {
+                ofPushStyle();
+                ofSetColor(255);
+                ofSetColor(cyanPrint);
+                float circleRadius;
+                ofVec2f circleCenter = toOf(contourFinder.getMinEnclosingCircle(i, circleRadius));
 
-            ofPopStyle();
+                // you can also get the area and perimeter using ofPolyline:
+                // ofPolyline::getArea() and ofPolyline::getPerimeter()
+                double area = contourFinder.getContourArea(i);
+                double length = contourFinder.getArcLength(i);      
 
-            ofSetColor(0, 255, 0, 255);
-            font.drawString(
-                "from: " + ofToString(filterName)
-                + "\narea: " + ofToString(area)
-                + "\nlength: " + ofToString(length)
-                + "\nbalance: " + ofToString(balance.length())
-                + "\ncows: " + ofToString(ceil(area/estimatedCowArea)),  // cow estimated area
-                circleCenter.x + circleRadius + 10, circleCenter.y
-            );
+                /*
+                ofFill();
+                ofSetColor(ofColor(200, 0, 0, 120));
+                ofCircle(circleCenter, circleRadius);
+                ofNoFill();
+                */
+                ofFill();
+                ofSetColor(ofColor(0, 255, 0, 100));
+                ofBeginShape();
+                vector<ofPoint>& vertices = convexHull.getVertices();
+                for(int j = 0; j < vertices.size(); j++) {
+                    ofVertex(vertices[j]);
+                }
+                ofEndShape();
+                ofNoFill();
+
+                ofPopStyle();
+
+                ofSetColor(0, 255, 0, 255);
+                font.drawString(
+                    "from: " + ofToString(filterName)
+                    + "\narea: " + ofToString(area)
+                    + "\nlength: " + ofToString(length)
+                    + "\nbalance: " + ofToString(balance.length())
+                    + "\ncows: " + ofToString(ceil(area/estimatedCowArea)),  // cow estimated area
+                    circleCenter.x + circleRadius + 10, circleCenter.y
+                );
+            }
+            
+            // defects of the convex hull
+            vector<cv::Vec4i> defects = contourFinder.getConvexityDefects(i);
+            for(int j = 0; j < defects.size(); j++) {
+                ofLine(defects[j][0], defects[j][1], defects[j][2], defects[j][3]);
+            }
+            
+            // some different styles of contour centers
+            ofVec2f centroid = toOf(contourFinder.getCentroid(i));
+            ofVec2f average = toOf(contourFinder.getAverage(i));
+            ofVec2f center = toOf(contourFinder.getCenter(i));
+            ofSetColor(cyanPrint);
+            ofCircle(centroid, 1);
+            ofSetColor(magentaPrint);
+            ofCircle(average, 1);
+            ofSetColor(yellowPrint);
+            ofCircle(center, 1);
+            
+            ofPushMatrix();
+            ofTranslate(centroid.x, centroid.y);
+            ofScale(5, 5);
+            ofLine(0, 0, balance.x, balance.y);
+            ofPopMatrix();
         }
-        
-        // defects of the convex hull
-        vector<cv::Vec4i> defects = contourFinder.getConvexityDefects(i);
-        for(int j = 0; j < defects.size(); j++) {
-            ofLine(defects[j][0], defects[j][1], defects[j][2], defects[j][3]);
-        }
-        
-        // some different styles of contour centers
-        ofVec2f centroid = toOf(contourFinder.getCentroid(i));
-        ofVec2f average = toOf(contourFinder.getAverage(i));
-        ofVec2f center = toOf(contourFinder.getCenter(i));
-        ofSetColor(cyanPrint);
-        ofCircle(centroid, 1);
-        ofSetColor(magentaPrint);
-        ofCircle(average, 1);
-        ofSetColor(yellowPrint);
-        ofCircle(center, 1);
-        
-        ofPushMatrix();
-        ofTranslate(centroid.x, centroid.y);
-        ofScale(5, 5);
-        ofLine(0, 0, balance.x, balance.y);
-        ofPopMatrix();
+
+        ofSetColor(255);
+    bufferOutput.end();
+
+    changed = false;
     }
-
-    ofSetColor(255);
+    bufferOutput.draw(0, 0);
 }
 
 //--------------------------------------------------------------
